@@ -1,0 +1,15 @@
+﻿  API_UNIT_TEST.cpp
+F:\2023\AI\Test_API\API_UNIT_TEST.cpp(181,72): warning C4244: 'argument': conversion from 'int64_t' to 'int', possible loss of data
+F:\2023\AI\Test_API\API_UNIT_TEST.cpp(181,64): warning C4244: 'argument': conversion from 'int64_t' to 'int', possible loss of data
+F:\2023\AI\Test_API\API_UNIT_TEST.cpp(181,56): warning C4244: 'argument': conversion from 'int64_t' to 'int', possible loss of data
+F:\2023\AI\Test_API\API_UNIT_TEST.cpp(193,40): warning C4305: 'initializing': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+  Generating code
+  3 of 342 functions ( 0.9%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  Test_API.vcxproj -> F:\2023\AI\x64\Release\test.exe

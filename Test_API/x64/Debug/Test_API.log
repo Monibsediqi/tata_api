@@ -1,0 +1,10 @@
+﻿  API_UNIT_TEST.cpp
+F:\2023\AI\Test_API\API_UNIT_TEST.cpp(181,72): warning C4244: 'argument': conversion from 'int64_t' to 'int', possible loss of data
+F:\2023\AI\Test_API\API_UNIT_TEST.cpp(181,64): warning C4244: 'argument': conversion from 'int64_t' to 'int', possible loss of data
+F:\2023\AI\Test_API\API_UNIT_TEST.cpp(181,56): warning C4244: 'argument': conversion from 'int64_t' to 'int', possible loss of data
+F:\2023\AI\Test_API\API_UNIT_TEST.cpp(193,40): warning C4305: 'initializing': truncation from 'double' to '_Ty'
+          with
+          [
+              _Ty=float
+          ]
+  Test_API.vcxproj -> F:\2023\AI\x64\Debug\test.exe
