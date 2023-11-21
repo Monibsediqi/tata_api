@@ -18,9 +18,6 @@ All rights reserved.
 
 // Third party includes
 #include <torch/torch.h>
-//#include <opencv2/opencv.hpp>
-//#include <opencv2/core.hpp>
-//#include <opencv2/highgui.hpp>
 
 using namespace std;
 using namespace torch;
@@ -32,14 +29,12 @@ struct PostprocessingParams {
 };
 
 ///////////////////////////// Global Functions /////////////////////////////////
+
 vector<int16_t> convertFloatToInt16(const vector<float_t>);
 vector<float_t> convertTensorToVector(const Tensor& tensor);
 vector<vector<vector<float_t>>> convertTensorTo3DVector(const Tensor& tensor);
 vector<vector<vector<int16_t>>> convertTensorTo3DVectorInt16(const torch::Tensor& tensor);
 
-
-// -------------------------- LUNG VOLUMETRY -----------------------------------
-//Tensor getBiggestConnectedRegion(const cv::Mat& gen_lung, int n_region);
 
 
 #endif // !_POSTPROCESSING_H

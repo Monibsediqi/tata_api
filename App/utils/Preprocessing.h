@@ -29,37 +29,41 @@ enum class NormMethod : unsigned int {
 	PERCENTILE,		// 2
 	NONE,			// 3
 };
-
 struct NormParams {
-	float_t min, max, avg, std, percentile0, percentile99;
-	NormParams() {
-		min = 0.0f;
-		max = 0.0f;
-		avg = 0.0f;
-		std = 0.0f;
-		percentile0 = 0.0f;
-		percentile0 = 0.0f;
-	}
+	double_t min, max, avg, std;
+};
+struct Result {
+	vector<short> v_pixel_data;
+	float min, max;
 };
 
-struct PreprocessedData {
-	Tensor t_data;
-	NormParams norm_params;
-};
-
-
-// ----------------------------- VECTOR OPERATIONS ------------------------------------
 float_t vecAvg(vector<float_t>& v);
 float_t vecStd(vector<float_t>& v);
-vector<float> convertShortToFloatVector(const std::vector<short>& shortVec);
-
+//std::vector<float_t> normalize1D (
+//	std::vector<float_t>& v_data,
+//	NormParams norm_params,
+//	NormMethod norm_method
+//);
 std::vector<short> readRawFile1D(std::string& raw_file_path, int d, int w, int h);
 
+//Result readRawFile1D_v2(std::string& raw_file_path, int d, int w, int h);
+
 // ----------------------------- TENSOR OPERATIONS ------------------------------------
+
+struct PatchData {
+	Tensor patches;
+	vector<int64_t> pad_size;
+	vector<int64_t> out_shape;
+};
 float calculatePercentile(torch::Tensor& tensor, float percentile);
-PreprocessedData normalizeTorch(torch::Tensor& t_data, NormMethod norm_method);
+Tensor normalizeTorch(torch::Tensor& t_data, NormMethod norm_method);
+//PatchData extractPatches(Tensor& input,
+//	Tensor(*normFun)(Tensor&, NormMethod),
+//	NormMethod norm_method,
+//	const int64_t patch_size = 96,
+//	const int64_t stride = 96);
+Tensor reconPatches(Tensor& patches, const std::vector<int64_t>& unfold_shape);
 Tensor resizeKeepRatioXray(Tensor& t_img, const int target_size);
-Tensor resizeXray(Tensor& t_img, const int target_size);
 Tensor padImageXray(torch::Tensor& t_img, const int target_size, const int pad_value = -1024);
 
 

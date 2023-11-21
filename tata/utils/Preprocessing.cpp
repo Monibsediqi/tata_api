@@ -16,6 +16,9 @@ namespace F = torch::nn::functional;
 #define ERR(x) std::cerr << "ERROR: " << x << std::endl;
 
 ////////////////////////////////////// Global Functions ///////////////////////////////////
+
+// ----------------------------- VECTOR OPERATIONS ------------------------------------
+
 float_t vecAvg(std::vector<float_t>& v) {
 	float sum = 0.0;
 	for (float_t x : v) {
@@ -31,7 +34,22 @@ float_t vecStd(std::vector<float_t>& v) {
 	}
 	return sqrt(sum / v.size());
 };
-Tensor normalizeTorch(torch::Tensor& t_data, NormMethod norm_method) {
+
+vector<float> convertShortToFloatVector(const std::vector<short>& shortVec) {
+	vector<float> floatVec;
+	floatVec.reserve(shortVec.size());
+
+	for (const auto& element : shortVec) {
+		floatVec.push_back(static_cast<float>(element));
+	}
+
+	return floatVec;
+}
+
+
+PreprocessedData normalizeTorch(torch::Tensor& t_data, NormMethod norm_method) {
+
+	PreprocessedData preprocessed_data = PreprocessedData();
 
 	torch::Tensor t_norm_data;
 
@@ -41,7 +59,11 @@ Tensor normalizeTorch(torch::Tensor& t_data, NormMethod norm_method) {
 		torch::Tensor min = t_data.min();
 		torch::Tensor max = t_data.max();
 		t_norm_data = (t_data - min) / (max - min);
-		return t_norm_data;
+		preprocessed_data.t_data = t_norm_data;
+		preprocessed_data.norm_params.min = min.item<float>();
+		preprocessed_data.norm_params.max = max.item<float>();
+
+		return preprocessed_data;
 	}
 	else if (norm_method == NormMethod::ZSCORE) {
 		INFO("Using ZSCORE normalization: ");
@@ -51,9 +73,14 @@ Tensor normalizeTorch(torch::Tensor& t_data, NormMethod norm_method) {
 		PRINT("mean val: " << mean);
 		PRINT("std val: " << std);
 		t_norm_data = (t_data - mean) / std;
-		return t_norm_data;
+		preprocessed_data.t_data = t_norm_data;
+		preprocessed_data.norm_params.avg = mean.item<float>();
+		preprocessed_data.norm_params.std = std.item<float>();
+
+		return preprocessed_data;
 	}
 	else if (norm_method == NormMethod::PERCENTILE) {
+		INFO("Using PERCENTILE normalization: ");
 		float eps = 1e-10;
 
 		auto t_mean = t_data.mean();
@@ -66,19 +93,23 @@ Tensor normalizeTorch(torch::Tensor& t_data, NormMethod norm_method) {
 		auto normalized_a = (t_data - percentile0) / ((percentile99 - percentile0) + eps);
 
 		//PRINT("normalized_a" << normalized_a);
+		preprocessed_data.t_data = normalized_a;
+		preprocessed_data.norm_params.percentile0 = percentile0;
+		preprocessed_data.norm_params.percentile99 = percentile99;
 
-		return normalized_a;
+		return preprocessed_data;
 	}
 
 	else if (norm_method == NormMethod::NONE) {
 		// do nothing 
 		INFO("Using NONE normalization: ");
-		return t_data;
+		preprocessed_data.t_data = t_data;
+		return preprocessed_data;
 	}
 
 	else {
 		ERR("Error: Invalid normalization method. ");
-		return t_data;
+		return preprocessed_data;
 	}
 
 }
@@ -94,6 +125,13 @@ Tensor resizeKeepRatioXray(Tensor& t_img, const int target_size) {
 
 	float ratio = static_cast<float>(target_size) / std::max(old_size[1], old_size[2]);
 	std::vector<int64_t> new_size = { static_cast<int64_t> (old_size[1] * ratio), static_cast<int64_t>(old_size[2] * ratio) };
+	t_img = nn::functional::interpolate(t_img.unsqueeze(0), nn::functional::InterpolateFuncOptions().size(new_size).mode(kNearest)).squeeze(0);
+
+	return t_img;
+}
+Tensor resizeXray(Tensor& t_img, const int target_size) {
+	std::vector<int64_t> old_size = t_img.sizes().vec();
+	std::vector<int64_t> new_size = { target_size, target_size };
 	t_img = nn::functional::interpolate(t_img.unsqueeze(0), nn::functional::InterpolateFuncOptions().size(new_size).mode(kNearest)).squeeze(0);
 
 	return t_img;

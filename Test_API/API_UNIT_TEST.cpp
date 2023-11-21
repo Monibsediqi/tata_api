@@ -1,16 +1,70 @@
-// Test_API.cpp : This file contains the 'main' function. Program execution begins and ends there.
+// Test_API.cpp : This file contains the 'main' function. 
+// Program execution begins and ends in this file.
 
-
+// system include
 #include <iostream>
-//#include "SegCoreBase.h"
+#include <vector>
+#include <string>
+#include <fstream>
+#include <cmath>
+#include <tuple>
+#include <map>
+#include <mutex>
+#include <chrono>
+#include <thread>
+#include <algorithm>
+#include <numeric>
+#include <filesystem>
+#include <random>
+#include <map>
+#include <unordered_map>
+
+// library include
 #include "TataBase.h"
 
+
 using namespace std;
-using namespace tata;
 
 #define PRINT(x) std::cout << x << std::endl;
 #define INFO(x) std::cout << "INFO: " << x << std::endl;
 #define ERR(x) std::cerr << "ERROR: " << x << std::endl;
+
+vector<int16_t> convertFloatToInt16(const vector<float> vec_data) {
+	vector<int16_t> vec_int16_data;
+	for (auto x : vec_data) {
+		vec_int16_data.push_back((int16_t)x);
+	}
+	return vec_int16_data;
+}
+vector<int16_t> convertShortToInt16(const vector<short> vec_data) {
+	vector<int16_t> vec_int16_data;
+	for (auto x : vec_data) {
+		vec_int16_data.push_back((int16_t)x);
+	}
+	return vec_int16_data;
+}
+vector<vector<vector<int16_t>>> convertFloatToInt16(const vector<vector<vector<float>>> v_input){
+	std::vector<std::vector<std::vector<int16_t>>> v_output; // Output vector of int16_t
+
+	// Iterate over each element of the input vector
+	for (const auto& vec1 : v_input) {
+		std::vector<std::vector<int16_t>> temp_vec1;  // Temporary vector to store intermediate results
+
+		// Iterate over each element of the inner vector
+		for (const auto& vec2 : vec1) {
+			std::vector<int16_t> temp_vec2;  // Temporary vector to store intermediate results
+
+			// Iterate over each element of the innermost vector and convert to int16_t
+			for (const auto& element : vec2) {
+				temp_vec2.push_back(static_cast<int16_t>(element));
+			}
+
+			temp_vec1.push_back(temp_vec2);
+		}
+
+		v_output.push_back(temp_vec1);
+	}
+}
 
 vector<short> readRawFile1D(string& raw_file_path, int d, int w, int h) {
 	std::ifstream input_file(raw_file_path, std::ios::in | std::ios::binary);
@@ -42,193 +96,114 @@ vector<short> readRawFile1D(string& raw_file_path, int d, int w, int h) {
 	PRINT("Reading file successful.");
 	return v_pixel_val;
 };
+void writeRawData1D(vector<int16_t> data, string filename) {
 
-//void testXrayLungSeg() {
-//
-//
-//	// Models path
-//	const std::string	XRAY2LUNG = "F:\\2023\\AI\\App\\scripted_models\\xray2lung.mipx";
-//	const std::string	LUNG_REG = "F:\\2023\\AI\\App\\scripted_models\\lungregression.mipx";
-//
-//
-//	string LUNG_VOL_RAW = "F:\\2023\\AI\\sample_data\\tisepx_a\\lung_vol_raw\\JB0006_CXR_0base_201229.raw";
-//
-//	int64_t XRAY_D = 1;
-//	int64_t XRAY_W = 2652;
-//	int64_t XRAY_H = 2450;
-//
-//
-//	vector<short> vec_img_A = readRawFile1D(LUNG_VOL_RAW, XRAY_D, XRAY_W, XRAY_H); // read image A
-//	vector<float_t> vec_img_A_float(vec_img_A.begin(), vec_img_A.end());
-//
-//	// start input bucket setup 
-//	Bucket bucket;
-//
-//	bucket.v_data = vec_img_A_float;			// type float vector 
-//	bucket.age = "30";							// type string
-//	bucket.depth = XRAY_D;						// type int64_t
-//	bucket.width = XRAY_W;						// type int64_t
-//	bucket.height = XRAY_H;						// type int64_t
-//	bucket.v_pixel_spacing = { 0.12, 0.12 };	// type float vector with size 2
-//	bucket.scan_type = ScanType::XRAY;
-//	// -- end input bucket setup -- 
-//	INFO("inBucket setup successful!")
-//	
-//
-//	// -- start API base setup --
-//	SegCoreBase seg_core_base;
-//	seg_core_base.setProduct(Product::TISEPX);
-//	seg_core_base.setAITask(AITask::SEGMENTATION);
-//	//seg_core_base.setInBucket(in_bucket);
-//	 
-//	// -- end API base setup --
-//
-//	// calling segmentation models
-//	Segmentation segObj;
-//	segObj.setSegTask(SegTask::LUNG);
-//	segObj.setModelPath(XRAY2LUNG); // complete path to model.mipx
-//
-//	Bucket outbucket = segObj.predict(bucket);
-//	PRINT("Done Segmentation!");
-//	
-//	Regression regObj;
-//	regObj.setRegTask(RegTask::LUNG_VOLUME);
-//	regObj.setModelPath(LUNG_REG);
-//	//regObj.setBucket(outbucket);
-//	Bucket regBucket = regObj.predict(outbucket);
-//	PRINT("Done Regression");
-//}
-
-//void testTataGeneral() {
-//	// Initialize a Fibonacci relation sequence.
-//	fibonacci_init(1, 1);
-//	// Write out the sequence values until overflow.
-//	do {
-//		std::cout << fibonacci_index() << ": "
-//			<< fibonacci_current() << std::endl;
-//	} while (fibonacci_next());
-//	// Report count of values written before overflow.
-//	std::cout << fibonacci_index() + 1 <<
-//		" Fibonacci sequence values fit in an " <<
-//		"unsigned 64-bit integer." << std::endl;
-//
-//}
-
-
-//void testTataAPI() {
-//
-//	const std::string	XRAY2LUNG = "F:\\2023\\AI\\App\\scripted_models\\xray2lung.mipx";
-//	const std::string	LUNG_REG = "F:\\2023\\AI\\App\\scripted_models\\lungregression_cpu.mipx";
-//
-//
-//	string LUNG_VOL_RAW = "F:\\2023\\AI\\sample_data\\tisepx_a\\lung_vol_raw\\JB0006_CXR_0base_201229.raw";
-//
-//	int64_t XRAY_D = 1;
-//	int64_t XRAY_W = 2652;
-//	int64_t XRAY_H = 2450;
-//
-//
-//	vector<short> vec_img_A = readRawFile1D(LUNG_VOL_RAW, XRAY_D, XRAY_W, XRAY_H); // read image A
-//	vector<float_t> vec_img_A_float(vec_img_A.begin(), vec_img_A.end());
-//
-//	// start input bucket setup 
-//	Bucket bucket;
-//
-//	bucket.v_data = vec_img_A_float;			// type float vector 
-//	bucket.age = "30";							// type string
-//	bucket.sex = "M";
-//	bucket.depth = XRAY_D;						// type int64_t
-//	bucket.width = XRAY_W;						// type int64_t
-//	bucket.height = XRAY_H;						// type int64_t
-//	bucket.v_pixel_spacing = { 0.12, 0.12 };	// type float vector with size 2
-//
-//	// -- end input bucket setup -- 
-//	INFO("Bucket setup successful!")
-//
-//
-//	// -- start API base setup --
-//	TataBase tata_base;
-//	tata_base.setAITask(AITask::SEGMENTATION);
-//	//seg_core_base.setInBucket(in_bucket);
-//
-//	// -- end API base setup --
-//
-//	// calling segmentation models
-//	Segmentation segObj;
-//	segObj.setSegTask(SegTask::LUNG);
-//	segObj.setModelPath(XRAY2LUNG); // complete path to model.mipx
-//
-//	Bucket outbucket = segObj.predict(bucket);
-//	PRINT("Done Segmentation!");
-//
-//	Regression regObj;
-//	regObj.setRegTask(RegTask::LUNG_VOLUME);
-//	regObj.setModelPath(LUNG_REG);
-//	//regObj.setBucket(outbucket);
-//	Bucket regBucket = regObj.predict(outbucket);
-//	PRINT("Done Regression");
-//
-//}
-
-void tataAPITest2() {
-	string LUNG_VOL_RAW = "F:\\2023\\AI\\sample_data\\tisepx_a\\lung_vol_raw\\JB0006_CXR_0base_201229.raw";
-
-	int64_t XRAY_D = 1;
-	int64_t XRAY_W = 2652;
-	int64_t XRAY_H = 2450;
-
-
-	vector<short> vec_img_A = readRawFile1D(LUNG_VOL_RAW, XRAY_D, XRAY_W, XRAY_H); // read image A
-	vector<float_t> vec_img_A_float(vec_img_A.begin(), vec_img_A.end());
-
-	// start input bucket setup 
-	Bucket bucket;
-
-	bucket.v_data = vec_img_A_float;			// type float vector 
-	bucket.age = "30";							// type string
-	bucket.sex = "M";
-	bucket.depth = XRAY_D;						// type int64_t
-	bucket.width = XRAY_W;						// type int64_t
-	bucket.height = XRAY_H;						// type int64_t
-	bucket.v_pixel_spacing = { 0.12, 0.12 };	// type float vector with size 2
-
-	// -- end input bucket setup -- 
-	INFO("Bucket setup successful!")
-
-	const string	weight_path = "F:\\2023\\AI\\App\\scripted_models\\";
-	const string	xray2lung_weight = "xray2lung.mipx";
-	const string	lung_reg_weight = "lungregression_cpu.mipx";
-
-	PRINT(weight_path + xray2lung_weight)
-
-	Configuration model_config;
-	model_config.weight_path = weight_path;
-	model_config.LungSegmentation.weight_name = xray2lung_weight;
-	model_config.LungRegression.weight_name = lung_reg_weight;
-
-	// -- API base setup --
-	TataBase tata_api (model_config);
-	//tata_api.setConfiguration(model_config);
-
-
-	Segmentation segment(model_config);
-	Bucket lung_seg_bucket = segment.run(bucket, SegTask::LUNG_SEGMENTATION);
-
-	INFO("Done Segmentation")
-
-	Regression regress(model_config);
-	Bucket lungRegBucket = regress.run(lung_seg_bucket, RegTask::LUNG_VOLUME);
-
-	INFO("Done Regression");
+	INFO("checking 200 pixels value: ");
+	int counter = 0;
+	for (auto x : data) {
+		std::cout << x << " ";
+		counter++;
+		if (counter == 50) {
+			break;
+		}
+	}
+	auto file = std::ofstream(filename, std::ios::out | std::ios::binary);
+	if (file.is_open()) {
+		file.write((char*)&data[0], sizeof(int16_t) * data.size());
+		file.close();
+	}
 }
+
+void testAPI() {
+
+	string LUNG_VOL_RAW = "F:\\2023\\AI\\sample_data\\tisepx_a\\lung_vol_raw\\JB0006_CXR_0base_201229.raw";
+	
+		int64_t XRAY_D = 1;
+		int64_t XRAY_W = 2652;
+		int64_t XRAY_H = 2450;
+	
+		vector<short> vec_img_A = readRawFile1D(LUNG_VOL_RAW, XRAY_D, XRAY_W, XRAY_H); // read image A
+		//vector<float_t> vec_img_A_float(vec_img_A.begin(), vec_img_A.end());
+		tata::PatientInfo p_info;
+		p_info.age = 74;
+		p_info.sex = "M";
+
+
+		tata::PatientData p_data;
+
+		p_data.img_original = vec_img_A;
+		p_data.img_size_x = XRAY_W;
+		p_data.img_size_y = XRAY_H;
+		p_data.img_size_z = XRAY_D;
+		p_data.img_spacing_x = 0.1430;
+		p_data.img_spacing_y = 0.1430;
+		p_data.img_spacing_z = 1.0;
+
+		const string	weight_path = "F:\\2023\\AI\\App\\scripted_models\\";
+		const string	xray2lung_weight = "xray2lung.mipx";
+		const string	lung_reg_weight = "lungregression.mipx";
+		const string 	lung2covid_weight = "lung2covid.mipx";
+		const string 	xray2heart_weight = "xray2heart.mipx";
+		const string    lung2vessel = "lung2vessel.mipx";
+		const string    xray2bone = "xray2bone.mipx";
+
+		tata::Configuration model_config;
+		model_config.weight_path = weight_path;
+		model_config.lung_segmentation.weight_name = xray2lung_weight;
+		model_config.lung_regression.weight_name = lung_reg_weight;
+		model_config.COVID.weight_name = lung2covid_weight;
+		model_config.heart_segmentation.weight_name = xray2heart_weight;
+		model_config.vessel_segmentation.weight_name = lung2vessel;
+		model_config.bone_segmentation.weight_name = xray2bone;
+
+		vector<tata::AnalysisPlan> analysis_plan;
+		analysis_plan.push_back(tata::AnalysisPlan::CXR_LUNG);
+		analysis_plan.push_back(tata::AnalysisPlan::CXR_BONE);
+		analysis_plan.push_back(tata::AnalysisPlan::CXR_HEART);
+		analysis_plan.push_back(tata::AnalysisPlan::CXR_VASCULAR);
+		analysis_plan.push_back(tata::AnalysisPlan::CXR_COVID);
+
+
+		// -- API base setup --
+		tata::TataBase tata_api (model_config);
+
+		//Setup TiSepX Analysis Plan
+		tata::Analysis tisep_analysis(model_config);
+		tisep_analysis.setPatientInfo(p_info);
+		tisep_analysis.setPatientData(p_data);
+		tisep_analysis.setAnalysisPlan(analysis_plan);
+
+		tisep_analysis.doAnalysis();
+		PRINT("Analysis completed!");
+		
+		unordered_map<string, tata::Layer> out_layers = tisep_analysis.getOutputLayers();
+
+		//Lung
+		vector<int16_t> v_int_data = convertShortToInt16(out_layers["lung"].v_tisepx_image);
+		writeRawData1D(v_int_data, "F:\\2023\\AI\\sample_data\\tisepx_b\\lung_seg_raw\\JB0006_CXR_0base_201229.raw");
+
+		//Bone
+		v_int_data = convertShortToInt16(out_layers["bone"].v_tisepx_image);
+		writeRawData1D(v_int_data, "F:\\2023\\AI\\sample_data\\tisepx_b\\bone_seg_raw\\JB0006_CXR_0base_201229.raw");
+
+		//Heart
+		v_int_data = convertShortToInt16(out_layers["heart"].v_tisepx_image);
+		writeRawData1D(v_int_data, "F:\\2023\\AI\\sample_data\\tisepx_b\\heart_seg_raw\\JB0006_CXR_0base_201229.raw");
+
+		//Vessel
+		v_int_data = convertShortToInt16(out_layers["vascular"].v_tisepx_image);
+		writeRawData1D(v_int_data, "F:\\2023\\AI\\sample_data\\tisepx_b\\vessel_seg_raw\\JB0006_CXR_0base_201229.raw");
+
+		//COVID
+		v_int_data = convertShortToInt16(out_layers["covid"].v_tisepx_image);
+		writeRawData1D(v_int_data, "F:\\2023\\AI\\sample_data\\tisepx_b\\covid_seg_raw\\JB0006_CXR_0base_201229.raw");
+
+}
+
+
 
 int main()
 {
-	//testXrayLungSeg();
-	//testTataGeneral();
-	tataAPITest2();
-
-	
-
+	testAPI();
 	INFO("Test completed!")
 }
